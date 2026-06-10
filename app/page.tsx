@@ -27,7 +27,7 @@ export default function Page() {
   return (
     <>
       <Navigation />
-      <main className="w-full bg-white pt-16">
+      <main className="w-full bg-white pt-20">
         <HeroSequence />
         <WhySection />
         <ProductsSection />

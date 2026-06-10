@@ -181,9 +181,9 @@ export default function HeroSequence() {
              <p className="mb-4 text-pretty mx-auto max-w-2xl text-lg font-semibold text-amber-300 sm:text-2xl">
               Nourish Your Mind. Fuel Your Soul. Strengthen Your Health.
             </p>
-            <p className="text-pretty mx-auto max-w-2xl text-sm text-neutral-400 sm:text-base">
-              Wellness nutrition crafted for your mental, spiritual, and physical wellbeing.
-              Order fresh, pre-made nutrition delivered to your door daily.
+             <p className="text-pretty mx-auto max-w-2xl text-sm text-white sm:text-base">
+              Wellness nutrition crafted for your mental, spiritual, and <br/>physical wellbeing.
+              Order fresh, pre-made<br/> nutrition delivered to your door daily.
             </p>
           </motion.div>
 
@@ -194,7 +194,10 @@ export default function HeroSequence() {
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             className="pointer-events-auto mt-12 flex flex-col gap-4 sm:flex-row"
           >
-            <button className="rounded-lg bg-amber-600 px-8 py-3 font-semibold text-white transition-transform hover:bg-amber-700 hover:scale-105 active:scale-95">
+            <button
+              onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
+              className="rounded-lg bg-amber-600 px-8 py-3 font-semibold text-white transition-transform hover:bg-amber-700 hover:scale-105 active:scale-95"
+            >
               Order Now
             </button>
             <button className="rounded-lg border-2 border-white px-8 py-3 font-semibold text-white transition-transform hover:scale-105 active:scale-95">

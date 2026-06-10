@@ -21,21 +21,8 @@ export const metadata: Metadata = {
     'MISOHA - Mind, Souls, Health. Premium overnight oats and wellness shots for your mental, spiritual, and physical wellbeing. Order pre-made fresh nutrition delivered to your door.',
   generator: 'v0.app',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/images/brand-icon.png',
+    apple: '/images/brand-icon.png',
   },
 }
 

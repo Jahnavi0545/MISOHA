@@ -60,14 +60,16 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="mt-4 flex items-center justify-between">
             <span className="text-2xl font-bold text-amber-600">{product.price}</span>
             <motion.button
-              whileHover={{ x: 4 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
               onClick={(e) => {
                 e.stopPropagation()
-                setIsModalOpen(true)
+                sessionStorage.setItem('preselectedProduct', JSON.stringify({ productName: product.name }))
+                document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
-              View Details →
+              Order Now
             </motion.button>
           </div>
         </div>

@@ -5,51 +5,42 @@ import ProductCard from './ProductCard'
 
 export default function WellnessSection() {
   const shots = [
-    {
-      id: 'w1',
-      name: 'Amla Shot',
-      description: 'Indian superfruit for immune strength and mental clarity. Rich in vitamin C for holistic health.',
-      price: '₹40',
-      image: '/images/products/amla-shot.png',
-      imageAlt: 'Amla Wellness Shot',
-      color: 'amber',
-      ingredients: ['Amla', 'Honey', 'Water'],
-      benefits: ['Immune Power', 'Mental Clarity', 'Vitamin C Boost', 'Energy Flow'],
-    },
-    {
-      id: 'w2',
-      name: 'ABC Shot',
-      description: 'Apple, Beet, Carrot blend for vital energy. Cleanses the mind and body naturally.',
-      price: '₹40',
-      image: '/images/products/abc-shot.png',
-      imageAlt: 'ABC Wellness Shot',
-      color: 'red',
-      ingredients: ['Apple', 'Beet', 'Carrot', 'Ginger', 'Lemon'],
-      benefits: ['Vital Energy', 'Natural Cleanse', 'Body Purification', 'Mental Refresh'],
-    },
-    {
-      id: 'w3',
-      name: 'Turmeric Shot',
-      description: 'Golden turmeric with black pepper for anti-inflammatory wellness. Supports spiritual and physical health.',
-      price: '₹40',
-      image: '/images/products/turmeric-shot.png',
-      imageAlt: 'Turmeric Wellness Shot',
-      color: 'orange',
-      ingredients: ['Turmeric', 'Black Pepper', 'Ginger', 'Honey', 'Water'],
-      benefits: ['Anti-inflammatory', 'Spiritual Wellness', 'Joint Health', 'Golden Health'],
-    },
-    {
-      id: 'w4',
-      name: 'Ginger Lemon Shot',
-      description: 'Warming ginger and fresh lemon to ignite digestion and mental alertness.',
-      price: '₹40',
-      image: '/images/products/ginger-lemon-shot.png',
-      imageAlt: 'Ginger Lemon Wellness Shot',
-      color: 'yellow',
-      ingredients: ['Ginger', 'Lemon', 'Raw Honey', 'Water'],
-      benefits: ['Digestive Fire', 'Mental Alertness', 'Immune Boost', 'Vitality'],
-    },
-  ]
+  {
+    id: 'w1',
+    name: 'Amla Vital Shot',
+    description: 'A powerful blend of amla, ginger, Honey, black pepper, and curry leaves crafted to support immunity and daily wellness.',
+    price: '₹40',
+    image: '/images/products/amla-shot.png',
+    imageAlt: 'Amla Vital Shot',
+    color: 'amber',
+    ingredients: ['Amla', 'Ginger', 'Honey', 'Black Pepper', 'Curry Leaves'],
+    benefits: ['Immunity Boost', 'Vitamin C Rich', 'Natural Energy', 'Daily Wellness'],
+  },
+
+  {
+    id: 'w2',
+    name: 'ABC Glow Shot',
+    description: 'A nourishing blend of apple, beetroot, and carrot packed with essential nutrients for vitality and natural radiance.',
+    price: '₹40',
+    image: '/images/products/abc-shot.png',
+    imageAlt: 'ABC Glow Shot',
+    color: 'red',
+    ingredients: ['Apple', 'Beetroot', 'Carrot'],
+    benefits: ['Natural Glow', 'Nutrient Rich', 'Daily Vitality', 'Natural Detox'],
+  },
+
+  {
+    id: 'w4',
+    name: 'Immunity Boost Shot',
+    description: 'A refreshing mix of orange, pineapple, amla, ginger, and raw turmeric designed to strengthen immunity naturally.',
+    price: '₹40',
+    image: '/images/products/ginger-lemon-shot.png',
+    imageAlt: 'Immunity Boost Shot',
+    color: 'yellow',
+    ingredients: ['Orange', 'Pineapple', 'Amla', 'Ginger', 'Raw Turmeric'],
+    benefits: ['Immune Support', 'Antioxidant Rich', 'Anti-Inflammatory', 'Natural Refreshment'],
+  },
+]
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -95,7 +86,7 @@ export default function WellnessSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
         >
           {shots.map((product) => (
             <motion.div key={product.id} variants={itemVariants}>

@@ -77,23 +77,17 @@ export default function ProductModal({ product, onClose }: ProductModalProps) {
               </ul>
             </div>
 
-            {/* Benefits */}
-            <div className="mt-8">
-              <h3 className="text-xl font-bold text-gray-900">Health Benefits</h3>
-              <ul className="mt-3 space-y-2">
-                {product.benefits.map((benefit, idx) => (
-                  <li key={idx} className="flex items-center text-gray-700">
-                    <span className="mr-3 text-amber-600">✓</span>
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            
 
             {/* CTA Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                sessionStorage.setItem('preselectedProduct', JSON.stringify({ productName: product.name }))
+                onClose()
+                document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })
+              }}
               className="mt-8 w-full rounded-lg bg-slate-900 px-6 py-3 font-bold text-white transition-colors hover:bg-amber-600"
             >
               Add to Order

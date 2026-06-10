@@ -13,16 +13,16 @@ export default function Navigation() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
-      className="fixed top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-sm"
+      className="fixed top-0 z-50 w-full border-b border-gray-100 bg-white shadow-sm"
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="#" className="flex items-center gap-2">
           <Image 
             src="/images/brand-icon.png" 
             alt="MISOHA" 
-            width={70} 
-            height={70}
+            width={100} 
+            height={100}
             className="h-16 w-16"
           />
         </Link>
@@ -41,7 +41,10 @@ export default function Navigation() {
         </div>
 
         {/* CTA Button */}
-        <button className="hidden rounded-lg bg-slate-900 px-6 py-2 font-semibold text-white transition-transform hover:bg-amber-600 hover:scale-105 md:inline-block">
+        <button
+          onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
+          className="hidden rounded-lg bg-slate-900 px-6 py-2 font-semibold text-white transition-transform hover:bg-amber-600 hover:scale-105 md:inline-block"
+        >
           Order Now
         </button>
 
@@ -83,7 +86,13 @@ export default function Navigation() {
             <Link href="#faq" className="block py-2 text-sm text-gray-700">
               FAQ
             </Link>
-            <button className="w-full rounded-lg bg-slate-900 px-6 py-2 font-semibold text-white hover:bg-amber-600 transition-colors">
+            <button
+              onClick={() => {
+                document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })
+                setIsOpen(false)
+              }}
+              className="w-full rounded-lg bg-slate-900 px-6 py-2 font-semibold text-white hover:bg-amber-600 transition-colors"
+            >
               Order Now
             </button>
           </div>

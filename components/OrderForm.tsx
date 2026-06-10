@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 
 
@@ -14,18 +14,28 @@ interface FormData {
   city: string
   state: string
   postalCode: string
-  oatsSelection: string
-  oatsQuantity: number
-  shotsSelection: string
-  shotsQuantity: number
   subscriptionType: string
   deliveryDate: string
   instructions: string
   terms: boolean
 }
 
-const OATS = ['Strawberry Banana Bliss', 'Mango Coconut Paradise', 'Chocolate Peanut Butter Power', 'Blueberry Almond Crunch', 'Apple Cinnamon']
-const SHOTS = ['Amla Shot', 'ABC Shot', 'Turmeric Shot', 'Ginger Lemon Shot']
+interface Product {
+  name: string
+  category: 'oats' | 'shots'
+  price: number
+}
+
+const ALL_PRODUCTS: Product[] = [
+  { name: 'Strawberry Banana Bliss', category: 'oats', price: 200 },
+  { name: 'Mango Coconut Paradise', category: 'oats', price: 200 },
+  { name: 'Chocolate Peanut Butter Dream', category: 'oats', price: 200 },
+  { name: 'Blueberry Almond Crunch', category: 'oats', price: 200 },
+  { name: 'Carrot Cake', category: 'oats', price: 200 },
+  { name: 'Amla Vital Shot', category: 'shots', price: 40 },
+  { name: 'ABC Glow Shot', category: 'shots', price: 40 },
+  { name: 'Immunity Boost Shot', category: 'shots', price: 40 },
+]
 const SUBSCRIPTIONS = [
   { id: 'one-time', label: 'One Time Order', description: 'Single order' },
   { id: 'weekly', label: 'Weekly Plan', description: '1 week recurring' },
@@ -36,6 +46,10 @@ const SUBSCRIPTIONS = [
 export default function OrderForm() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
+  const [quantities, setQuantities] = useState<Record<string, number>>(
+    ALL_PRODUCTS.reduce((acc, p) => ({ ...acc, [p.name]: 0 }), {} as Record<string, number>)
+  )
+
   const {
     register,
     handleSubmit,
@@ -44,38 +58,87 @@ export default function OrderForm() {
   } = useForm<FormData>({
     defaultValues: {
       subscriptionType: 'one-time',
-      oatsQuantity: 1,
-      shotsQuantity: 1,
     },
   })
 
   const subscriptionType = watch('subscriptionType')
 
+  useEffect(() => {
+    const preselected = sessionStorage.getItem('preselectedProduct')
+    if (preselected) {
+      try {
+        const { productName } = JSON.parse(preselected)
+        if (ALL_PRODUCTS.some(p => p.name === productName)) {
+          setQuantities(prev => ({ ...prev, [productName]: (prev[productName] || 0) + 1 }))
+        }
+      } catch {}
+      sessionStorage.removeItem('preselectedProduct')
+    }
+  }, [])
+
+  const handleQuantityChange = (productName: string, value: number) => {
+    setQuantities(prev => ({ ...prev, [productName]: Math.max(0, Math.min(99, value)) }))
+  }
+
+  const calculateTotal = () => {
+    return ALL_PRODUCTS.reduce(
+      (total, product) => total + (quantities[product.name] || 0) * product.price,
+      0
+    )
+  }
+
+  const getOrderSummary = () => {
+    return ALL_PRODUCTS
+      .filter(p => (quantities[p.name] || 0) > 0)
+      .map(p => `${p.name} × ${quantities[p.name]}`)
+      .join(', ')
+  }
+
+  const getCategorySummary = (category: 'oats' | 'shots') => {
+    return ALL_PRODUCTS
+      .filter(p => p.category === category && (quantities[p.name] || 0) > 0)
+      .map(p => `${p.name} × ${quantities[p.name]}`)
+      .join(', ')
+  }
+
+  const getCategoryTotal = (category: 'oats' | 'shots') => {
+    return ALL_PRODUCTS
+      .filter(p => p.category === category)
+      .reduce((sum, p) => sum + (quantities[p.name] || 0), 0)
+  }
+
   const onSubmit = async (data: FormData) => {
+    const totalPrice = calculateTotal()
+    if (totalPrice === 0) {
+      setSubmitMessage('⚠️ Please select at least one product to order.')
+      return
+    }
+
     try {
-    // Customer must order before 9 PM on the previous day
-const deliveryDate = new Date(data.deliveryDate)
-const now = new Date()
+      const deliveryDate = new Date(data.deliveryDate)
+      const now = new Date()
 
-const cutoffDate = new Date(deliveryDate)
-cutoffDate.setDate(cutoffDate.getDate() - 1)
-cutoffDate.setHours(21, 0, 0, 0) // 9:00 PM
+      const cutoffDate = new Date(deliveryDate)
+      cutoffDate.setDate(cutoffDate.getDate() - 1)
+      cutoffDate.setHours(21, 0, 0, 0)
 
-if (now > cutoffDate) {
-  setSubmitMessage(
-    '⚠️ Orders must be placed before 9:00 PM on the previous day.'
-  )
-  return
-}
+      if (now > cutoffDate) {
+        setSubmitMessage('⚠️ Orders must be placed before 9:00 PM on the previous day.')
+        return
+      }
 
-      // Send to Google Sheets via API
       const response = await fetch('/api/submit-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
+          oatsSelection: getCategorySummary('oats'),
+          oatsQuantity: getCategoryTotal('oats'),
+          shotsSelection: getCategorySummary('shots'),
+          shotsQuantity: getCategoryTotal('shots'),
+          items: getOrderSummary(),
+          totalPrice,
           timestamp: new Date().toISOString(),
-          totalPrice: calculateTotal(data),
         }),
       })
 
@@ -95,12 +158,6 @@ if (now > cutoffDate) {
     }
   }
 
-  const calculateTotal = (data: FormData) => {
-    const oatsPrice = data.oatsQuantity * 200
-    const shotsPrice = data.shotsQuantity * 40
-    return oatsPrice + shotsPrice
-  }
-
   return (
     <section id="order" className="bg-gradient-to-b from-white to-slate-50 py-20 sm:py-32">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
@@ -116,7 +173,7 @@ if (now > cutoffDate) {
             Place Your Order
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Order by 9 AM for next-day fresh delivery to your door
+            Order by 9 pm for next-day fresh delivery to your door
           </p>
         </motion.div>
 
@@ -239,60 +296,68 @@ if (now > cutoffDate) {
           {/* Product Selection */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Select Products</h3>
+            <p className="text-sm text-gray-500">Set quantity for each item you want to order (0 = skip)</p>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Oats Flavor *</label>
-                <select
-                  {...register('oatsSelection', { required: 'Select an oats flavor' })}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-100"
-                >
-                  <option value="">Choose flavor...</option>
-                  {OATS.map((flavor) => (
-                    <option key={flavor} value={flavor}>
-                      {flavor} - ₹200
-                    </option>
-                  ))}
-                </select>
-                {errors.oatsSelection && <p className="mt-1 text-sm text-red-600">{errors.oatsSelection.message}</p>}
+            <div>
+              <h4 className="text-md mb-3 font-medium text-gray-700">Wellness Oats (₹200 each)</h4>
+              <div className="space-y-2">
+                {ALL_PRODUCTS.filter(p => p.category === 'oats').map(product => (
+                  <div key={product.name} className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
+                    <span className="text-sm text-gray-900">{product.name}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(product.name, (quantities[product.name] || 0) - 1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+                      >
+                        −
+                      </button>
+                      <span className="w-8 text-center text-sm font-medium text-gray-900">{quantities[product.name] || 0}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(product.name, (quantities[product.name] || 0) + 1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Oats Quantity *</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="5"
-                  {...register('oatsQuantity', { required: 'Quantity is required', min: 1 })}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-100"
-                />
-                {errors.oatsQuantity && <p className="mt-1 text-sm text-red-600">{errors.oatsQuantity.message}</p>}
+            <div>
+              <h4 className="text-md mb-3 mt-6 font-medium text-gray-700">Wellness Shots (₹40 each)</h4>
+              <div className="space-y-2">
+                {ALL_PRODUCTS.filter(p => p.category === 'shots').map(product => (
+                  <div key={product.name} className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
+                    <span className="text-sm text-gray-900">{product.name}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(product.name, (quantities[product.name] || 0) - 1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+                      >
+                        −
+                      </button>
+                      <span className="w-8 text-center text-sm font-medium text-gray-900">{quantities[product.name] || 0}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleQuantityChange(product.name, (quantities[product.name] || 0) + 1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Wellness Shot</label>
-                <select
-                  {...register('shotsSelection')}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-100"
-                >
-                  <option value="">No shot</option>
-                  {SHOTS.map((shot) => (
-                    <option key={shot} value={shot}>
-                      {shot} - ₹40
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Shot Quantity</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="5"
-                  {...register('shotsQuantity')}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-100"
-                />
+            <div className="rounded-lg bg-amber-50 p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-gray-900">Estimated Total</span>
+                <span className="text-2xl font-bold text-amber-600">₹{calculateTotal()}</span>
               </div>
             </div>
           </div>
@@ -326,7 +391,7 @@ if (now > cutoffDate) {
               {...register('deliveryDate', { required: 'Delivery date is required' })}
               className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-100"
             />
-            <p className="mt-1 text-xs text-gray-500">Order by 9 AM for next-day delivery</p>
+            <p className="mt-1 text-xs text-gray-500">Order by 9 pm for next-day delivery</p>
             {errors.deliveryDate && <p className="mt-1 text-sm text-red-600">{errors.deliveryDate.message}</p>}
           </div>
 

@@ -88,7 +88,10 @@ export default function WhySection() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <button className="rounded-lg bg-slate-900 px-8 py-3 font-semibold text-white transition-transform hover:bg-amber-600 hover:scale-105">
+          <button
+            onClick={() => document.getElementById('order')?.scrollIntoView({ behavior: 'smooth' })}
+            className="rounded-lg bg-slate-900 px-8 py-3 font-semibold text-white transition-transform hover:bg-amber-600 hover:scale-105"
+          >
             Order Fresh Today
           </button>
         </motion.div>
